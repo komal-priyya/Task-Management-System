@@ -92,7 +92,25 @@ const login = async (req, res) => {
         });
     }
 };
+const profile = async (req, res) => {
+    try{
+    res.json({
+        success: true,
+        data: {
+            name: req.user.name,
+            email: req.user.email
+        }
+    });
 
+    
+
+    }catch(error){
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
 const logout = async (req, res) => {
     res.clearCookie("token");
 
@@ -106,5 +124,6 @@ const logout = async (req, res) => {
 module.exports= {
     register,
     login,
-    logout
+    logout,
+    profile
 }
