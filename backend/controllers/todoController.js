@@ -79,8 +79,11 @@ const createTodoAdmin = async (req, res) => {
         return res.status(201).json({
             success: true,
             message: "Todo created successfully",
-            data: todo
-        });
+
+            data: todo,
+            
+            
+        });alert("todo created successfully")
 
     } catch (error) {
         console.log(error)

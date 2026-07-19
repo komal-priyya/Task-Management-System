@@ -11,6 +11,33 @@ const titleField = document.querySelector(".title-field");
 const descriptionField = document.querySelector(".description-field");
 const statusField = document.querySelector(".status-field");
 
+
+async function loadTodos() {
+    try {
+        console.log("loadTodos started");
+
+        const response = await fetch("http://127.0.0.1:3000/api/todos", {
+            method: "GET",
+            credentials: "include"
+        });
+
+        console.log(response);
+
+        const data = await response.json();
+
+        console.log(data);
+
+        data.data.forEach(todo => {
+            createTodoCard(todo);
+        });
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+loadTodos();
 function createTodoCard(todo) {
 
     const todoDiv = document.createElement("div");
@@ -66,20 +93,29 @@ function createTodoCard(todo) {
 
     });
 
-    deleteBtn.addEventListener("click", () => {
+    deleteBtn.addEventListener("click", async () => {
 
-        todoDiv.remove();
+        try{
+            console.log(todo);
+console.log(todo._id);
+const response= await fetch(`http://127.0.0.1:3000/api/todos/${todo._id}`,{
 
-        let todos =
-            JSON.parse(localStorage.getItem("todos")) || [];
+    method:"DELETE",
+    credentials:"include",
 
-        todos = todos.filter(t => t.id !== todo.id);
+})
+ 
+console.log(response);
+  const data = await response.json()
+    console.log(data)
 
-        localStorage.setItem(
-            "todos",
-            JSON.stringify(todos)
-        );
+if(data.success){todoDiv.remove()}
 
+        }catch(error){
+            console.error(error)
+        }
+
+        
     });
 
 let isEditing = false;
@@ -123,12 +159,9 @@ editBtn.addEventListener("click", () => {
         todo.description = descInput.value;
         todo.status = statusSelect.value;
 
-        // Update localStorage
-        let todos = JSON.parse(localStorage.getItem("todos")) || [];
 
         todos = todos.map(t => t.id === todo.id ? todo : t);
 
-        localStorage.setItem("todos", JSON.stringify(todos));
 
         // Create new elements
         title = document.createElement("h3");
@@ -167,8 +200,6 @@ addBtn.addEventListener("click", async () => {
         return;
     }
 
-    // let todos =
-    //     JSON.parse(localStorage.getItem("todos")) || [];
 
     if (editingId === null) {
 
@@ -192,6 +223,8 @@ const data= await response.json();
 console.log(data)
        
 
+createTodoCard(data.data)
+
     }
 
     else {
@@ -212,10 +245,7 @@ console.log(data)
 
         });
 
-        localStorage.setItem(
-            "todos",
-            JSON.stringify(todos)
-        );
+       
 
         location.reload();
 
