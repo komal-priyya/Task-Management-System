@@ -1,6 +1,7 @@
 const User = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const generateTokenAndSetCookie = require("../utils/genertateToken.js");
 // register
 const register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -27,6 +28,8 @@ const user = await User.create({
     email,
     password: hashedPassword
 });
+
+generateTokenAndSetCookie(user,res);
         return res.status(201).json({
         success: true,
         message: "User registered successfully",
@@ -69,17 +72,7 @@ const login = async (req, res) => {
         }
 
        
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET_KEY,
-            { expiresIn: "1d" }
-        );
-
-      
-        res.cookie("token", token, {
-            httpOnly: true
-        });
-
+        generateTokenAndSetCookie(user,res)
         return res.status(200).json({
             success: true,
             message: "Login successful"
