@@ -9,12 +9,9 @@ const {
     getSingleTodo,
     updateTodo,
     deleteTodo,
-    getAllTodosOfUsers,
+    
     getAllUsers,
-    createTodoAdmin,
-     getAllTodosAdmin,
-    updateTodoAdmin, 
-    deleteTodoAdmin
+    
 } = require("../controllers/todoController");
 
 

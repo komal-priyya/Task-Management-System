@@ -149,3 +149,10 @@ const deleteTodoAdmin = async (req, res) => {
         });
     }
 };
+module.exports= {
+ createTodoAdmin,
+ getAllTodosOfUsers,
+ getAllTodosAdmin,
+ updateTodoAdmin,
+deleteTodoAdmin   
+};
