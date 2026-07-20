@@ -124,9 +124,11 @@ let titleInput;
 let descInput;
 let statusSelect;
 
-editBtn.addEventListener("click", () => {
+editBtn.addEventListener("click", async() => {
 
     if (!isEditing) {
+
+        
 
         // Create inputs
         titleInput = document.createElement("input");
@@ -155,15 +157,45 @@ editBtn.addEventListener("click", () => {
     } else {
 
         // Save updated values
-        todo.title = titleInput.value;
-        todo.description = descInput.value;
-        todo.status = statusSelect.value;
+        const updateTitle = titleInput.value;
+    const updateDescription = descInput.value;
+        const updatedStatus = statusSelect.value;
+try{
+
+const response = await fetch(`http://127.0.0.1:3000/api/todos/${todo._id}`,{
+    method: 'PUT',
+    headers:{
+        "Content-Type": "application/json"
+    },
+credentials:"include",
+
+body: JSON.stringify({
+    title: todo.title,
+    description: todo.description,
+    status: todo.status
+})
 
 
-        todos = todos.map(t => t.id === todo.id ? todo : t);
 
 
-        // Create new elements
+})
+console.log(response);
+  const data = await response.json()
+    console.log(data)
+
+
+    if(data.success){
+
+
+
+   // Update local todo object only after backend succeeds
+            todo.title = updateTitle;
+            todo.description = updateDescription;
+            todo.status = updatedStatus;
+
+
+
+// Create new elements
         title = document.createElement("h3");
         title.innerText = todo.title;
 
@@ -183,6 +215,14 @@ editBtn.addEventListener("click", () => {
 
         isEditing = false;
         editBtn.innerText = "Edit";
+    }else{
+        alert(data.message)
+    }
+}catch(error){
+    console.error(error)
+     alert("Something went wrong. Please try again.");
+}
+        
     }
 
 });

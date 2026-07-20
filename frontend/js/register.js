@@ -45,15 +45,13 @@ credentials:"include",
             alert(data.message);
 
             // Go to login page
-            // window.location.href = "login.html"
+            window.location.href = "dashboard.html"
 
         } else {
 
             alert(data.message);
 
         }
-
-
 
     } catch (error) {
 
