@@ -64,12 +64,12 @@ console.log("Todos:", todos);
     }
 
 
-//    if (todo.user.toString() !== req.user._id.toString()) {
-//             return res.status(401).json({
-//                 success: false,
-//                 message: "Unauthorized"
-//             });
-//         }
+   if (todo.user.toString() !== req.user._id.toString()) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
 return res.status(200).json({
     success:true,
     data:todos
