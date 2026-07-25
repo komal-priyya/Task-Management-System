@@ -1,6 +1,6 @@
  const Todo = require("../models/todoModel");      
 const User = require("../models/userModel");
-
+const mongoose= require("mongoose")
 
 
 
@@ -70,7 +70,12 @@ const getAllTodos = async (req, res) => {
 //  Single Todo
 const getSingleTodo = async (req, res) => {
     try {
-
+if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid Todo ID"
+    });
+}
         const todo = await Todo.findById(req.params.id);
 
         if (!todo) {
@@ -103,7 +108,12 @@ const getSingleTodo = async (req, res) => {
 // Update Todo
 const updateTodo = async (req, res) => {
     try {
-
+if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid Todo ID"
+    });
+}
         const todo = await Todo.findById(req.params.id);
 
         if (!todo) {
@@ -153,7 +163,12 @@ const updateTodo = async (req, res) => {
 // Delete Todo
 const deleteTodo = async (req, res) => {
     try {
-
+if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid Todo ID"
+    });
+}
         const todo = await Todo.findById(req.params.id);
 
         if (!todo) {
