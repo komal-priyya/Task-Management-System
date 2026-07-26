@@ -3,20 +3,25 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const isAdmin = require("../middleware/AdminMiddleware");
 
+const {profile}=require("../controllers/authController")
 const {
  getAllTodosOfUsers,
   createTodoAdmin,
+
      getAllTodosAdmin,
     updateTodoAdmin, 
-    deleteTodoAdmin
+    deleteTodoAdmin,
+    getAllUsers
 }= require("../controllers/adminController")
 
 
-// admin
-router.post("/admin/create", authMiddleware, isAdmin, createTodoAdmin);
 
-router.get("/admin/all", authMiddleware, isAdmin, getAllTodosAdmin);
-router.put("/admin/:id", authMiddleware, isAdmin, updateTodoAdmin);
-router.delete("/admin/:id", authMiddleware, isAdmin, deleteTodoAdmin);
-router.get("/admin/users", authMiddleware, isAdmin, getAllUsers);
+// admin
+router.post("/todos/create", authMiddleware, isAdmin, createTodoAdmin);
+
+router.get("/todos/all", authMiddleware, isAdmin, getAllTodosAdmin);
+router.put("/todos/:id", authMiddleware, isAdmin, updateTodoAdmin);
+router.delete("/todos/:id", authMiddleware, isAdmin, deleteTodoAdmin);
+router.get("/users", authMiddleware, isAdmin, getAllUsers);
+router.get("/profile", authMiddleware, isAdmin, profile);
 module.exports = router;

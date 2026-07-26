@@ -149,9 +149,30 @@ const deleteTodoAdmin = async (req, res) => {
         });
     }
 };
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find()
+            .select("-password");
+
+        return res.status(200).json({
+            success: true,
+            message: "Users fetched successfully",
+            data: users
+        });
+
+    } catch (error) {
+        console.error("Get all users error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
 module.exports= {
  createTodoAdmin,
- getAllTodosOfUsers,
+getAllUsers,
  getAllTodosAdmin,
  updateTodoAdmin,
 deleteTodoAdmin   

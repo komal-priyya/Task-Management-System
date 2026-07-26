@@ -1,6 +1,6 @@
  const Todo = require("../models/todoModel");      
 const User = require("../models/userModel");
-const mongoose= require("mongoose")
+const mongoose = require("mongoose");
 
 
 
@@ -124,13 +124,33 @@ if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         }
 
         if (todo.user.toString() !== req.user._id.toString()) {
-            return res.status(401).json({
+            return res.status(403).json({
                 success: false,
                 message: "Unauthorized"
             });
         }
 
         const { title, description, status } = req.body;
+
+   // Validate title
+        if (title !== undefined && title.trim() === "") {
+            return res.status(400).json({
+                success: false,
+                message: "Title cannot be empty"
+            });
+        }
+
+
+        // Validate description
+        if (description !== undefined && description.trim() === "") {
+            return res.status(400).json({
+                success: false,
+                message: "Description cannot be empty"
+            });
+        }
+
+
+
 
         if (title !== undefined) {
             todo.title = title;
@@ -179,7 +199,7 @@ if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         }
 
         if (todo.user.toString() !== req.user._id.toString()) {
-            return res.status(401).json({
+            return res.status(403).json({
                 success: false,
                 message: "Unauthorized"
             });
@@ -207,9 +227,13 @@ const getAllUsers = async (req, res) => {
             data: users
         });
     } catch (error) {
+ console.error(error)
         return res.status(500).json({
             success: false,
-            message: error.message
+         message: error.message  ,  
+                 
+ 
+
         });
     }
 };

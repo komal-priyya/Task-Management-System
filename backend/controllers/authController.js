@@ -1,7 +1,8 @@
 const User = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const generateTokenAndSetCookie = require("../utils/genertateToken.js");
+const generateToken = require("../utils/generateToken.js");
+
 // register
 const register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -15,10 +16,12 @@ const register = async (req, res) => {
 
 
 const existingUser = await User.findOne({email});
+console.log("Email received:", email);
+console.log("Existing user found:", existingUser);
 if(existingUser){
     return res.status(400).json({
         success:false,
-        message:"user already exists"
+        message:"Email already in use"
         
     })
 }
@@ -29,7 +32,7 @@ const user = await User.create({
     password: hashedPassword
 });
 
-generateTokenAndSetCookie(user,res);
+generateToken(user,res);
         return res.status(201).json({
         success: true,
         message: "User registered successfully",
@@ -72,7 +75,7 @@ const login = async (req, res) => {
         }
 
        
-        generateTokenAndSetCookie(user,res)
+        generateToken(user,res)
         return res.status(200).json({
             success: true,
             message: "Login successful"
@@ -85,25 +88,6 @@ const login = async (req, res) => {
         });
     }
 };
-const profile = async (req, res) => {
-    try{
-    res.json({
-        success: true,
-        data: {
-            name: req.user.name,
-            email: req.user.email
-        }
-    });
-
-    
-
-    }catch(error){
-        return res.status(500).json({
-            success:false,
-            message:error.message
-        })
-    }
-}
 const logout = async (req, res) => {
     res.clearCookie("token");
 
@@ -113,7 +97,27 @@ const logout = async (req, res) => {
     });
 };
 
+const profile = async (req, res) => {
+    try {
+        return res.status(200).json({
+            success: true,
+            message: "Profile fetched successfully",
+            data: {
+                id: req.user._id,
+                name: req.user.name,
+                email: req.user.email,
+                role: req.user.role
+            }
+        });
+    } catch (error) {
+        console.error(error);
 
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
 module.exports= {
     register,
     login,
