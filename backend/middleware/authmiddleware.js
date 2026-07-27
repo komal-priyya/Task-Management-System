@@ -40,7 +40,7 @@ const authMiddleware = async (req, res, next) => {
     }
 };
 
-module.exports = authmiddleware;  
+module.exports = authMiddleware;  
 
 
-module.exports = authmiddleware;  
+module.exports = authMiddleware;  
