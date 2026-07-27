@@ -29,7 +29,7 @@ This project started as a basic task management application with a vanilla JavaS
 - Unauthenticated users are redirected to Login
 - Role-based authorization
 - Admin-only routes
-- Normal users receive `403 Forbidden` when accessing admin routes
+- Normal users cant access admin routes
 
 ### Task Management
 
