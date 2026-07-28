@@ -302,7 +302,7 @@ return ( <div className="min-h-screen bg-stone-50">
             sm:text-base
             text-stone-800
             font-medium
-            break-words
+            wrap-break-word
           ">
             {user.name}
           </span>

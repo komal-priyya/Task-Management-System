@@ -511,7 +511,7 @@ return (
                         text-lg
                         font-semibold
                         text-stone-800
-                        break-words
+                        wrap-break-word
                       ">
                         {todo.title}
                       </h3>
@@ -520,7 +520,7 @@ return (
                         text-sm
                         text-stone-500
                         mt-2
-                        break-words
+                        wrap-break-word
                       ">
                         {todo.description || "No description"}
                       </p>
