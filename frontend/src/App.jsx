@@ -17,6 +17,16 @@ function App() {
   return (
     <Routes>
 
+
+
+ <Route
+        path="/"
+        element={
+          <GuestRoute>
+            <Login />
+          </GuestRoute>
+        }
+        />
       {/* Only logged-out users can access */}
       <Route
         path="/login"
