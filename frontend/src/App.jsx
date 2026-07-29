@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 // Route protection
 import GuestRoute from "./components/GuestRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -53,7 +54,14 @@ function App() {
           </ProtectedRoute>
         }
       />
-
+<Route
+  path="/admin"
+  element={
+    <ProtectedRoute>
+      <AdminDashboard />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
   );
 }

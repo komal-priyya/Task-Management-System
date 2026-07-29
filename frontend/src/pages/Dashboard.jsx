@@ -1,13 +1,15 @@
 
-
 import { useEffect, useState } from "react";
 import API_URL from "../services/api";
 import TodoForm from "../components/TodoForm";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  //  const { user } = useAuth();
   const navigate = useNavigate();
 
   // Which todo are we currently editing?
@@ -124,68 +126,90 @@ function Dashboard() {
       status: "pending",
     });
   };
-// delete
-const handleDelete = async (todoId) => {
-  try {
-    const response = await fetch(
-      `${API_URL}/todos/${todoId}`,
-      {
-        method: "DELETE",
-        credentials: "include",
+  // delete
+  const handleDelete = async (todoId) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/todos/${todoId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to delete todo");
+        return;
       }
-    );
 
-    const data = await response.json();
+      console.log("Todo deleted:", data);
+      alert("Todo deleted successfully")
 
-    if (!response.ok) {
-      alert(data.message || "Failed to delete todo");
-      return;
+      // Reload todos from backend
+      loadTodos();
+
+    } catch (error) {
+      console.error("Error deleting todo:", error);
     }
-
-    console.log("Todo deleted:", data);
-
-    // Reload todos from backend
-    loadTodos();
-
-  } catch (error) {
-    console.error("Error deleting todo:", error);
-  }
-};
+  };
 
 
 
 
-const handleLogout = async () => {
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Logout failed");
+        return;
+      }
+
+      console.log("Logout successful:", data);
+alert("logged out successfully")
+      // Redirect to login page
+      navigate("/login");
+
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+
+  // LOAD TODOS WHEN DASHBOARD OPENS
+  
+
+
+  const loadUser = async () => {
   try {
-    const response = await fetch(`${API_URL}/auth/logout`, {
-      method: "POST",
+    const response = await fetch(`${API_URL}/auth/profile`, {
+      method: "GET",
       credentials: "include",
     });
 
     const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.message || "Logout failed");
-      return;
+console.log(data)
+    if (response.ok) {
+      setUser(data.data);
     }
-
-    console.log("Logout successful:", data);
-
-    // Redirect to login page
-    navigate("/login");
-
   } catch (error) {
-    console.error("Error logging out:", error);
+    console.error("Error loading user:", error);
   }
 };
 
-
-  // LOAD TODOS WHEN DASHBOARD OPENS
-  useEffect(() => {
+useEffect(() => {
     loadTodos();
+     loadUser();
   }, []);
 
-
+console.log("CURRENT USER:", user);
   if (loading) {
     return <h1>Loading...</h1>;
   }
@@ -193,28 +217,26 @@ const handleLogout = async () => {
 
 
 
-    
+  return (
+    <div className="min-h-screen bg-stone-50">
 
-return (
-  <div className="min-h-screen bg-stone-50">
+      {/* Navbar */}
+      <nav className="bg-white border-b border-stone-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
 
-    {/* Navbar */}
-    <nav className="bg-white border-b border-stone-200">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* App name */}
+            <h2 className="text-xl font-semibold text-stone-800">
+              Task Manager
+            </h2>
 
-          {/* App name */}
-          <h2 className="text-xl font-semibold text-stone-800">
-            Task Manager
-          </h2>
+            {/* Navigation */}
+            <div className="flex flex-wrap items-center gap-2">
 
-          {/* Navigation */}
-          <div className="flex flex-wrap items-center gap-2">
-
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="
                 px-4 py-2
                 rounded-lg
                 text-sm font-medium
@@ -223,13 +245,13 @@ return (
                 hover:bg-stone-700
                 transition
               "
-            >
-              Dashboard
-            </button>
+              >
+                Dashboard
+              </button>
 
-            <button
-              onClick={() => navigate("/profile")}
-              className="
+              <button
+                onClick={() => navigate("/profile")}
+                className="
                 px-4 py-2
                 rounded-lg
                 text-sm font-medium
@@ -239,13 +261,21 @@ return (
                 hover:bg-stone-200
                 transition
               "
-            >
-              Profile
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="
+              >
+                Profile
+              </button>
+ {/* ADMIN ONLY */}
+  {user?.role === "admin" && (
+    <button
+      onClick={() => navigate("/admin")}
+      className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-100 text-blue-700"
+    >
+      Manage Users
+    </button>
+  )}
+              <button
+                onClick={handleLogout}
+                className="
                 px-4 py-2
                 rounded-lg
                 text-sm font-medium
@@ -254,64 +284,64 @@ return (
                 hover:bg-red-50
                 transition
               "
-            >
-              Logout
-            </button>
+              >
+                Logout
+              </button>
 
+            </div>
           </div>
+
+        </div>
+      </nav>
+
+
+      {/* Main content */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+
+        {/* Page heading */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-stone-800">
+            My Todos
+          </h1>
+
+          <p className="mt-2 text-sm text-stone-500">
+            Keep track of the things you need to get done.
+          </p>
         </div>
 
-      </div>
-    </nav>
+
+        {/* Create Todo */}
+        <TodoForm onTodoCreated={loadTodos} />
 
 
-    {/* Main content */}
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+        {/* Todo list */}
+        <div className="mt-8 space-y-4">
 
-      {/* Page heading */}
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-stone-800">
-          My Todos
-        </h1>
+          {todos.length === 0 ? (
 
-        <p className="mt-2 text-sm text-stone-500">
-          Keep track of the things you need to get done.
-        </p>
-      </div>
-
-
-      {/* Create Todo */}
-      <TodoForm onTodoCreated={loadTodos} />
-
-
-      {/* Todo list */}
-      <div className="mt-8 space-y-4">
-
-        {todos.length === 0 ? (
-
-          <div className="
+            <div className="
             bg-white
             border border-stone-200
             rounded-xl
             p-8
             text-center
           ">
-            <p className="text-stone-500">
-              No todos found.
-            </p>
+              <p className="text-stone-500">
+                No todos found.
+              </p>
 
-            <p className="text-sm text-stone-400 mt-1">
-              Add your first todo to get started.
-            </p>
-          </div>
+              <p className="text-sm text-stone-400 mt-1">
+                Add your first todo to get started.
+              </p>
+            </div>
 
-        ) : (
+          ) : (
 
-          todos.map((todo) => (
+            todos.map((todo) => (
 
-            <div
-              key={todo._id}
-              className="
+              <div
+                key={todo._id}
+                className="
                 bg-white
                 border border-stone-200
                 rounded-xl
@@ -319,35 +349,35 @@ return (
                 sm:p-6
                 shadow-sm
               "
-            >
+              >
 
-              {/* EDIT MODE */}
-              {editingId === todo._id ? (
+                {/* EDIT MODE */}
+                {editingId === todo._id ? (
 
-                <div className="space-y-4">
+                  <div className="space-y-4">
 
-                  <h3 className="text-lg font-semibold text-stone-800">
-                    Edit Todo
-                  </h3>
+                    <h3 className="text-lg font-semibold text-stone-800">
+                      Edit Todo
+                    </h3>
 
-                  {/* Title */}
-                  <div>
-                    <label className="
+                    {/* Title */}
+                    <div>
+                      <label className="
                       block
                       text-sm
                       font-medium
                       text-stone-700
                       mb-2
                     ">
-                      Title
-                    </label>
+                        Title
+                      </label>
 
-                    <input
-                      type="text"
-                      name="title"
-                      value={editForm.title}
-                      onChange={handleEditChange}
-                      className="
+                      <input
+                        type="text"
+                        name="title"
+                        value={editForm.title}
+                        onChange={handleEditChange}
+                        className="
                         w-full
                         px-4 py-3
                         bg-stone-50
@@ -360,28 +390,28 @@ return (
                         focus:ring-2
                         focus:ring-stone-200
                       "
-                    />
-                  </div>
+                      />
+                    </div>
 
 
-                  {/* Description */}
-                  <div>
-                    <label className="
+                    {/* Description */}
+                    <div>
+                      <label className="
                       block
                       text-sm
                       font-medium
                       text-stone-700
                       mb-2
                     ">
-                      Description
-                    </label>
+                        Description
+                      </label>
 
-                    <input
-                      type="text"
-                      name="description"
-                      value={editForm.description}
-                      onChange={handleEditChange}
-                      className="
+                      <input
+                        type="text"
+                        name="description"
+                        value={editForm.description}
+                        onChange={handleEditChange}
+                        className="
                         w-full
                         px-4 py-3
                         bg-stone-50
@@ -394,27 +424,27 @@ return (
                         focus:ring-2
                         focus:ring-stone-200
                       "
-                    />
-                  </div>
+                      />
+                    </div>
 
 
-                  {/* Status */}
-                  <div>
-                    <label className="
+                    {/* Status */}
+                    <div>
+                      <label className="
                       block
                       text-sm
                       font-medium
                       text-stone-700
                       mb-2
                     ">
-                      Status
-                    </label>
+                        Status
+                      </label>
 
-                    <select
-                      name="status"
-                      value={editForm.status}
-                      onChange={handleEditChange}
-                      className="
+                      <select
+                        name="status"
+                        value={editForm.status}
+                        onChange={handleEditChange}
+                        className="
                         w-full
                         px-4 py-3
                         bg-stone-50
@@ -427,20 +457,20 @@ return (
                         focus:ring-2
                         focus:ring-stone-200
                       "
-                    >
-                      <option value="pending">
-                        Pending
-                      </option>
+                      >
+                        <option value="pending">
+                          Pending
+                        </option>
 
-                      <option value="completed">
-                        Completed
-                      </option>
-                    </select>
-                  </div>
+                        <option value="completed">
+                          Completed
+                        </option>
+                      </select>
+                    </div>
 
 
-                  {/* Edit buttons */}
-                  <div className="
+                    {/* Edit buttons */}
+                    <div className="
                     flex
                     flex-col
                     sm:flex-row
@@ -448,9 +478,9 @@ return (
                     pt-2
                   ">
 
-                    <button
-                      onClick={handleUpdate}
-                      className="
+                      <button
+                        onClick={handleUpdate}
+                        className="
                         w-full
                         sm:w-auto
                         px-5 py-2.5
@@ -462,13 +492,13 @@ return (
                         hover:bg-stone-700
                         transition
                       "
-                    >
-                      Save Changes
-                    </button>
+                      >
+                        Save Changes
+                      </button>
 
-                    <button
-                      onClick={handleCancel}
-                      className="
+                      <button
+                        onClick={handleCancel}
+                        className="
                         w-full
                         sm:w-auto
                         px-5 py-2.5
@@ -481,21 +511,21 @@ return (
                         hover:bg-stone-200
                         transition
                       "
-                    >
-                      Cancel
-                    </button>
+                      >
+                        Cancel
+                      </button>
+
+                    </div>
 
                   </div>
 
-                </div>
+                ) : (
 
-              ) : (
+              
 
-                /* NORMAL TODO DISPLAY */
+                  <div>
 
-                <div>
-
-                  <div className="
+                    <div className="
                     flex
                     flex-col
                     sm:flex-row
@@ -504,51 +534,50 @@ return (
                     gap-4
                   ">
 
-                    {/* Todo content */}
-                    <div className="min-w-0">
+                      {/* Todo content */}
+                      <div className="min-w-0">
 
-                      <h3 className="
+                        <h3 className="
                         text-lg
                         font-semibold
                         text-stone-800
-                        wrap-break-word
+                        break-words
                       ">
-                        {todo.title}
-                      </h3>
+                          {todo.title}
+                        </h3>
 
-                      <p className="
+                        <p className="
                         text-sm
                         text-stone-500
                         mt-2
-                        wrap-break-word
+                        break-words
                       ">
-                        {todo.description || "No description"}
-                      </p>
+                          {todo.description || "No description"}
+                        </p>
 
-                    </div>
+                      </div>
 
 
-                    {/* Status */}
-                    <span className={`
+                      {/* Status */}
+                      <span className={`
                       self-start
                       px-3 py-1
                       rounded-full
                       text-xs
                       font-medium
-                      ${
-                        todo.status === "completed"
+                      ${todo.status === "completed"
                           ? "bg-green-100 text-green-700"
                           : "bg-amber-100 text-amber-700"
-                      }
+                        }
                     `}>
-                      {todo.status}
-                    </span>
+                        {todo.status}
+                      </span>
 
-                  </div>
+                    </div>
 
 
-                  {/* Todo buttons */}
-                  <div className="
+                    {/* Todo buttons */}
+                    <div className="
                     flex
                     flex-col
                     sm:flex-row
@@ -556,9 +585,9 @@ return (
                     mt-5
                   ">
 
-                    <button
-                      onClick={() => handleEdit(todo)}
-                      className="
+                      <button
+                        onClick={() => handleEdit(todo)}
+                        className="
                         w-full
                         sm:w-auto
                         px-5 py-2.5
@@ -571,13 +600,13 @@ return (
                         hover:bg-stone-200
                         transition
                       "
-                    >
-                      Edit
-                    </button>
+                      >
+                        Edit
+                      </button>
 
-                    <button
-                      onClick={() => handleDelete(todo._id)}
-                      className="
+                      <button
+                        onClick={() => handleDelete(todo._id)}
+                        className="
                         w-full
                         sm:w-auto
                         px-5 py-2.5
@@ -590,28 +619,28 @@ return (
                         hover:bg-red-100
                         transition
                       "
-                    >
-                      Delete
-                    </button>
+                      >
+                        Delete
+                      </button>
+
+                    </div>
 
                   </div>
 
-                </div>
+                )}
 
-              )}
+              </div>
 
-            </div>
+            ))
 
-          ))
+          )}
 
-        )}
+        </div>
 
-      </div>
+      </main>
 
-    </main>
-
-  </div>
-)
+    </div>
+  )
 };
 
 export default Dashboard;
