@@ -460,7 +460,7 @@ useEffect(() => {
               {/* Todos Content */}
               <div className="p-6">
                 {!selectedUser ? (
-                  <div className="min-h-[300px] flex items-center justify-center text-center">
+                  <div className="min-h-75 flex items-center justify-center text-center">
                     <div>
                       <div className="text-5xl mb-4">
                         📋
@@ -476,7 +476,7 @@ useEffect(() => {
                     </div>
                   </div>
                 ) : todosLoading ? (
-                  <div className="min-h-[300px] flex items-center justify-center">
+                  <div className="min-h-75 flex items-center justify-center">
                     <div className="text-center">
                       <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
 
@@ -486,7 +486,7 @@ useEffect(() => {
                     </div>
                   </div>
                 ) : todos.length === 0 ? (
-                  <div className="min-h-[300px] flex items-center justify-center text-center">
+                  <div className="min-h-75 flex items-center justify-center text-center">
                     <div>
                       <div className="text-5xl mb-4">
                         📝
